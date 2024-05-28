@@ -1,0 +1,149 @@
+---
+title: "RStudio Skill Test 1"
+date: "`r format(Sys.time(), '%d %B, %Y')`" 
+output: 
+  html_document:
+    
+    theme: flatly
+    toc: TRUE
+    toc_float: TRUE
+    code_download: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, cache = F}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  error = TRUE,
+  warning= FALSE,
+  message= FALSE)
+```
+
+# Getting started
+```{r}
+library(tidyverse) # just run this code (no points)
+?mpg# run this code to learn more about the dataset we will use in this practice (no points)
+```
+
+# Warming up [you can use pipe to complete the below tasks but it is not a must]
+
+1. Write the code to check only the columns name of the `mpg` dataset (0.5 point)
+```{r}
+colnames(mpg)
+glimpse(mpg,1)
+
+```
+
+2. Write the code to open the entire `mpg` dataset in a new window (0.5 point)
+```{r}
+view(mpg)
+```
+
+3. Write the code to create a new column named `cyl_by_displacement` in the `mpg` dataset that is equal to `cyl divided by displ`. Make sure that the column is added at the end of the original `mpg` dataset (1 point)
+
+```{r}
+mutate(mpg,cyl_by_displacement= cyl/displ)
+```
+
+4. Write the code to keep in your `mpg` dataset only the cars produced by `honda` in `2008` (1 point)
+```{r}
+filter(mpg, manufacturer=="honda", year==2008)
+```
+
+5. Write the code to reorder the `mpg` dataset from the `largest hwy` to the `smallest hwy` (1 point)
+```{r}
+arrange(mpg, desc(hwy))
+```
+
+6. Write the code to keep in your `mpg` dataset only the following columns: `manufacturer`, `displ`, `year`, `cyl` and `hwy` (1 point)
+
+```{r}
+select(mpg,manufacturer,displ,year,cyl,hwy)
+```
+
+# Pipes only [you must use pipe to complete the below tasks]
+
+7. Write the code to complete the following tasks:  
+- compute the `median cyl` of the cars in the `mpg` dataset per each drive train (`drv`) 
+- name the variable `median_cyl` 
+- sort the `mpg` dataset from the `smallest median_cyl` to the `largest median_cyl`. (2 points)
+
+```{r}
+mpg |> 
+  group_by(drv) |> 
+  summarise(median_cyl=median(cyl,na.rm=T)) |> 
+  arrange(median_cyl)
+```
+
+8. Write the code to complete the following tasks: 
+- keep in your `mpg` dataset only the following columns: `model`, `manufacturer`, `cty` and `hwy`
+- keep in the `mpg` dataset only the cars with `cty > 20` or `hwy >25`
+- sort the `mpg` dataset from the `largest hwy` to the `smallest hwy` (2 points)
+
+```{r}
+mpg |> 
+  select(model, manufacturer, cty, hwy) |> 
+  filter(cty>20 | hwy>25) |> 
+  arrange(desc(hwy))
+```
+
+9. Write the code to compute for `each car class` the following:  
+- `avg_hwy`= `average hwy`, 
+- `median_hwy`= `median hwy`, 
+- `min_hwy` = `minimum hwy`, 
+- `max_hwy`= `maximum hwy`, 
+- `sd_hwy`= `standard deviation hwy`,  
+- `cars_number` = `number of cars for each class` (2 points)
+
+```{r}
+mpg |> 
+  group_by(class) |> 
+  summarise(avg_hwy=mean(hwy,na.rm=T),
+            median_hwy=median(hwy,na.rm=T),
+            min_hwy=min(hwy,na.rm=T),
+            max_hwy=max(hwy,na.rm=T),
+            sd_hwy=sd(hwy,na.rm=T),
+            cars_number=n())
+```
+
+10. Write the code to compute for `each car trans` the following:  
+- `avg_cty`= `average cty`, 
+- `median_cty`= `median cty`, 
+- `min_cty` = `minimum cty`, 
+- `max_cty`= `maximum cty`, 
+- `sd_cty`= `standard deviation cty`,  
+- `count_cars` = `number of cars for each trans` (2 points)
+
+```{r}
+mpg |> 
+  group_by(trans) |> 
+  summarise(avg_cty=mean(cty,na.rm=T),
+            median_cty=median(cty,na.rm=T),
+            min_cty=min(cty,na.rm=T),
+            max_cty=max(cty,na.rm=T),
+            sd_cty=sd(cty,na.rm=T),
+            count_cars=n())
+```
+
+11. *Bonus/challenge question*:  Write the code to complete the following tasks: 
+- keep in the `mpg` dataset only the `cyl` and `manufacturer` columns 
+- compute the following per each car`manufacturer`: 
+  - `avg_cyl `= `average cyl`, 
+  - `median_cyl `= `median cyl`, 
+  - `sd_cyl` = `sd cyl`, 
+  - `cars_number`= `number of cars for each manufacturer`
+- keep in the `mpg` dataset only the manufacturers with `avg_cyl` bigger or equal `3`
+- display the data in the `mpg` dataset from the `largest median_cyl` to the `smallest median_cyl`.  (3 points)
+
+```{r}
+mpg |> 
+  select(cyl,manufacturer) |> 
+  group_by(manufacturer) |> 
+  summarise(avg_cyl=mean(cyl,na.rm = T),
+            median_cyl=median(cyl,na.rm = T),
+            sd_cyl=sd(cyl,na.rm=T),
+            cars_number=n()) |> 
+  filter(avg_cyl>=3) |> 
+  arrange(desc(median_cyl))
+```

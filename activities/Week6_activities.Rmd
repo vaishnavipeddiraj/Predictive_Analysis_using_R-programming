@@ -1,0 +1,107 @@
+---
+title: "Activity -3"
+date: "`r format(Sys.time(), '%d %B, %Y')`" 
+output: 
+  html_document:
+    theme: flatly
+    toc: TRUE
+    toc_float: TRUE
+    code_download: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE)
+set.seed(0101)
+diamonds <- sample_n(diamonds, 15000, weight= cut)
+```
+
+# A Semester Project made by Custom Made Activities
+
+
+Welcome to week 6 of the Dr. B & Class RStudio project. In this first part of the semester, you will apply what we learned in class in a set of tasks and scenarios. Please remember that it is important that the code that you submit is your own code and not somebody else work. It is fine to make mistakes but only by practicing in RStudio you can get a better grasp of the software. I also want you to try building your document as an official report for a potential company (Dreaming Diamonds LLC) for which you are getting to know and explore the diamonds dataset (e.g., spend time on storytelling, commenting results and providing insights and conclusions when possible). 
+Complete all the activities starting at the bottom of this document (write the code inside the chunk and the answers just below the questions).
+
+**Summary of this week tasks:**
+
+This week we will switch gears and move from the manipulations to the visualizations world.  Once you know how to import data, manipulate them, you need to learn how to explore them through the power of visualizations. Creating beautiful visualizations is a critical data analytics skill and can lead to interesting insights. So, let’s practice what we covered this week:
+•	Creating basic charts
+
+ 
+## Week Minimum Requirements
+
+1.	Load the tidyverse package.
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+2.	Use the diamonds dataset and complete the following:
+a.	Create a bar chart that show the cut variable distribution on the x axis.
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+```
+b.	Spend time to interpret your chart: What do you notice? Why is it important? Force yourself to write at least 2 insightful sentences about the above chart.
+As the quality of cut increases the number of diamonds also increase. The fair cut diamonds being the least and Ideal cut diamonds being the most. We could say that the shine and brilliance of diamonds is the best for Ideal cut diamonds, that is why the count of these diamonds is high as well.
+
+
+3.	Use the diamonds dataset and complete the following:
+a.	Create a boxplot of the carat (y) and clarity (x) variables.
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_boxplot(mapping = aes(x = clarity, y=carat))
+```
+b.	Spend time to interpret your chart: What do you notice? Why is it important? Force yourself to write at least 2 insightful sentences about the above chart.
+we now know that I1 has the highest carat with highest clarity. IF has the lowest.According to my observation as the carat increases clarity of the diamond increases as well. There are many outliers as well in I1 indicating the higher I1 value maybe because of few outliers.if we remove the two outliers it may be equal to s12. we wouldnt know until we do further analysis on data. We should rearrange the data on clarity for clear understanding.
+
+4.	Use the diamonds dataset and complete the following:
+a.	Create a scatterplot between the table (y) and depth (x) variables. Assign a different shape to each diamonds’ cut.
+```{r}
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = depth, y=table, shape =cut))
+
+```
+b.	 What do you think about this chart?
+The width of top of diamond relative to widest point and depth of diamonds, indicated in the chart using table in y axis and depth in x axis. for ideal diamonds both of these values are less. while the fair and good cut diamonds have high table value for the same depth. for the fair cut diamonds either the depth or table (anyone) value is higher which is different from ideal cut. Ideal cut has both the depth and table in medival ranges. As we see that all other cuts are placed randomly in between.
+
+c.	Now change the chart and instead of using a different shape for each diamonds’ cut, use a different color for each diamonds’ cut.
+```{r}
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = depth, y=table, color=cut))
+```
+
+d.	Spend time to interpret your chart: What do you notice? Why is it important? Force yourself to write at least 2 insightful sentences about the above chart.
+Compared to shape size is much more easier to interpret. as we can see that most of the diamonds have lower table values and depth is in between 58 to 63. we can clearly see the patterns of each type of cut. we can see that fair cut is on extremes of each side while the quality of cut increases the difference bwteen the depths and tables reduce.Ideal have slightly lower table values.
+
+5.	Use the diamonds dataset and complete the following:
+a.	Create a bar chart that show the price variable distribution on the y axis and use different color for each diamonds’ cut.
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(y=price, color =cut))
+```
+
+b.	Spend time to interpret your chart: What do you notice? Why is it important? Force yourself to write at least 2 insightful sentences about the above chart. 
+Its very hard to interpret as all the charts are overlapping. and there are many bars along the way. But looking at the pattern. there are alot of diamonds in the price range 0-2000. while the diamonds price increases the number of diamonds decreases which maybe due to the other factors that influence the quality of diamonds.
+
+6.	Use the diamonds dataset and complete the following:
+a.	Create a scatterplot between the carat (y) and x (x) variables. 
+b.	Assign a different size to each diamonds’ price.
+c.	Assign a different color to each diamonds’ color
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = x, y=carat, size = price, color =color))
+```
+
+d.	Spend time to interpret your chart: What do you notice? Why is it important? Force yourself to write at least 2 insightful sentences about the above chart.
+excpet for few outliers. as the length of the diamonds increases the carat also increases. The color with highest carat is J and the nect is I, the lowest is D. Most of the color D are of least carat. Though the price varies for all the diamonds accordingly, J at the top has high price. As the length decreases the price also seems to decrease, further analysis is required to understand it more accurately.
+
+## Submitting Your Code
+
+To submit your code, simply copy and paste only the code needed to solve the tasks below each question available at this form (https://forms.office.com/r/VyxxcD3aRg)
+

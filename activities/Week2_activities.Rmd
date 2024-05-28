@@ -1,0 +1,108 @@
+---
+title: "Activity -1"
+date: "`r format(Sys.time(), '%d %B, %Y')`" 
+output: 
+  html_document:
+    theme: flatly
+    toc: TRUE
+    toc_float: TRUE
+    code_download: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(nycflights13)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# A Semester Project made by Custom Designed Activities
+
+
+We continue working on the Dr. B & Class  project. During the entire semester you will apply what we learned in class in a set of tasks and scenarios custom designed for you. Please remember that it is important that the code that you submit is your own code and not somebody else work. It is fine to make mistakes but only by practicing in RStudio you can get a better grasp of the software. I also want you to try building your document as an official report for a potential company (Dreaming Diamonds LLC) for which you are getting to know and explore the diamonds dataset (e.g., spend time on storytelling, commenting results and providing insights and conclusions when possible). 
+ 
+Complete all the activities included in each week RMD. Finally, once you have finished them, make sure to rename this file as “week2_activities_your_name” (e.g., week2_activities_biagio_palese). Once you are done submit it in the Week2_activities folder in the Week 2 module on Blackboard. 
+
+**Summary of this week tasks:**
+
+This week we enter the world of data manipulations. In an ideal world, you would receive a dataset ready for analysis. However, this is almost never the case. Cleaning and wrangling data are critical skills of data scientists and should be performed before moving to modeling. So, let’s practice what we covered this week:
+- Getting to know your data
+- Manipulating your data using the 5 + 1 dplyr functions
+
+Week Minimum Requirements
+
+1.	Load the tidyverse package.
+```{r}
+library("tidyverse")
+```
+
+2.	Explore the diamonds dataframe. How many columns does this dataframe have? How many rows? Do you know what data each column represents? 
+[Hint: try ?diamonds]
+```{r}
+?diamonds
+View(diamonds)
+#There are 10 columns in this dataset. There are 53940 rows. There are columns like carat, price depth,table,color,and x,y,z representing length,width and depth in mm.
+```
+
+3.	Keep in the diamonds dataset only the columns that start with the letter “c”. How many columns are left in the dataframe?
+```{r}
+select(diamonds, starts_with("c")) #There are 4 columns that starts with c.
+```
+
+4.	Keep in the diamonds dataset only the diamonds with price above 1500$. How many observations are left in the dataframe?
+```{r}
+filter(diamonds, price>1500) # There are 33,930 observations left in dataframe whose price is greater than 1,500$.
+```
+
+5.	Sort the diamonds dataset from the smallest to the biggest price value. What is the lowest selling price?
+```{r}
+arrange(diamonds, price)
+#the lowest selling price of a diamond in our dataset is 326.
+```
+
+6.	Compute the average, median, and standard deviation of the “carat” column in the diamonds dataframe. What is the median carat of the diamonds in your dataframe? [Hint: use ?sd to learn how to compute the standard deviation] 
+```{r}
+summarise(diamonds, mean(carat))# average of carat is 0.798
+summarise(diamonds, median(carat)) # median value is 0.7
+summarise(diamonds, sd(carat))#the standard deviation is 0.474
+?median
+```
+
+7.	Create a new variable named “price_per_depth”. The price_per_depth column is equal to price divided depth.
+```{r}
+
+mutate(diamonds, price_per_depth = price/depth)
+# we have a new variable price_per_depth which display the price of diamonds with respect to depth.
+```
+
+8.	Keep in the diamonds dataset only the first 5 columns. How many columns are left in the dataframe?
+```{r}
+select(diamonds, 1:5) #5 columns are left in the dataframe whichh are carat,color,cut and depth are displayed.
+```
+
+9.	Sort the diamonds dataset from the biggest to the smallest carat value. What is the biggest carat?
+```{r}
+arrange(diamonds, desc(carat)) #5.01 is the biggest diamond in our dataset.
+```
+
+10.	Keep in the diamonds dataset only the diamonds with “ideal” cut and carat smaller or equal 0.7. How many observations are left in the dataframe?
+```{r}
+filter(diamonds, cut=="Ideal" & carat<=0.7) #there are 13095 observations
+```
+
+11.	Compute the average price for each diamonds “color”. What color has the highest average price? [Hint: need to use two manipulation functions to complete this activity].
+```{r}
+diamonds |> 
+  group_by(color) |> 
+  summarise(average_color_price = mean(price)) |> 
+  arrange(desc(average_color_price))
+
+
+# The highest average price is 5324 for 'J' color
+```
+
+
+ 
+
+

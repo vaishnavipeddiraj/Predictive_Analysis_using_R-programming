@@ -1,0 +1,132 @@
+---
+title: "Activity - 4"
+date: "`r format(Sys.time(), '%d %B, %Y')`" 
+output: 
+  html_document:
+    theme: flatly
+    toc: TRUE
+    toc_float: TRUE
+    code_download: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE)
+set.seed(0101)
+diamonds <- sample_n(diamonds, 15000, weight= cut)
+```
+
+# A Semester Project made by Custom Made Activities
+
+
+Welcome to week 7 of the Dr. B & Class RStudio project. In this first part of the semester, you will apply what we learned in class in a set of tasks and scenarios. Please remember that it is important that the code that you submit is your own code and not somebody else work. It is fine to make mistakes but only by practicing in RStudio you can get a better grasp of the software. I also want you to try building your document as an official report for a potential company (Dreaming Diamonds LLC) for which you are getting to know and explore the diamonds dataset (e.g., spend time on storytelling, commenting results and providing insights and conclusions when possible). 
+Complete all the activities starting at the bottom of this document (write the code inside the chunk and the answers just below the questions).
+ 
+
+
+**Summary of this week tasks:**
+
+
+This week we will work on enhancing our visualizations skills. We will go beyond the basic to practice static mapping, faceting, multiple geoms and global vs local mappings. Creating beautiful visualizations is a critical data analytics skill and can lead to interesting insights. So, let’s practice what we covered this week:
+•	Creating intermediated charts
+
+
+### Week Minimum Requirements
+
+1.	Load the tidyverse package.
+```{r}
+library(tidyverse)
+```
+
+2.	Use the diamonds dataset and complete the following:
+a.	Write the code necessary to reproduce the chart 1 below. *[Don't worry if the chart is slightly different, there might be small differences due to random sampling--> focus on right mapping and use of geom]*
+
+![Figure 1. Chart 1](week7_chart1.png)
+```{r}
+ggplot(data=diamonds)+
+  geom_boxplot(mapping =aes(x=price,y=carat,fill=color))+
+  facet_wrap(~cut,nrow = 3)
+```
+b.	Spend time to interpret your chart: What do you notice? Why is it important? Force yourself to write at least 2 insightful sentences about the above chart.
+In this random sample of data, the color I has been consistently above 12000. while all other colors seems to be really fluctuating. I expected the graph to be similar and got confused but i then remembered that the graph changes every time we run the line 19. 
+
+3.	Use the diamonds dataset and complete the following:
+a.	Create a scatterplot that show the relation between the depth and table variables.
+b.	Place depth on the x axis and table on y axis.
+c.	Assign a different color for each diamonds cut.
+d.	Assign a static mapping and enforce:
+    -	Shape to be equal to 18 and 
+    - Size to be equal to 4. 
+
+```{r}
+ggplot(data=diamonds)+
+  geom_point(aes(x=depth, y=table, color =cut ), shape=18, size =4)
+```
+
+e.	Spend time to interpret your chart: What do you notice? Why is it important? Force yourself to write at least 2 insightful sentences about the above chart.
+
+depth and table this chart is more consitent. Fair is at the extremes as it is possible to have more and less cut. and as we go in the ideal is almost near 62, 63 depth.
+
+
+
+4.	Use the diamonds dataset and complete the following:
+a.	Write the code necessary to reproduce the chart 2 below.
+*[Don't worry if the chart is slightly different, there might be small differences due to random sampling--> focus on right mapping and use of geom]*
+
+![Figure 2. Chart 2](Week7_chart2.png)
+```{r}
+ggplot(data=diamonds, aes(x=depth, y=carat))+
+  geom_point(aes( size = price, color =cut ))+
+  geom_smooth()
+```
+b.	Spend time to interpret your chart: What do you notice? Why is it important? How can you improve the above chart? Force yourself to write at least 2 insightful sentences about the above chart.
+though the size of the circles are bigger in the chart and make some points unnoticable, i got a graph that is pretty much similar to the graph in the chart. premium diamonds have high carat. for carat below 2, the price is significantly different even if the depth is same. higher the carat greater the price regardless of depth. prices for premium and ideal cut seems to be great only when there is high carat.
+
+5.	Use the diamonds dataset and complete the following:
+a.	Plot the relationship between carat (y) and depth (x) with both points and a line. 
+b.	Do not replicate the mapping. 
+c.	Make sure to assign a different color to the lines based on the clarity variable. 
+
+```{r}
+ggplot(data=diamonds, aes(x=depth, y=carat))+
+  geom_point()+
+  geom_smooth(aes( color =clarity ))
+```
+d.	Spend time to interpret your chart: What do you notice? Why is it important? Force yourself to write at least 2 insightful sentences about the above chart.
+most of the points high carat, with median depth. SI1, VS2 have two outliers due to which the lines vary alot. I1 has high carat and median depth values
+
+6.	Use the diamonds dataset and complete the following:
+a.	Write the code necessary to reproduce the chart 3 below.
+*[Don't worry if the chart is slightly different, there might be small differences due to random sampling--> focus on right mapping and use of geom]*
+
+![Figure 3. Chart 3](Week7_chart3.png)
+```{r}
+ggplot(data=diamonds, aes(x=carat, y=price))+
+  geom_point(color ='purple')+
+  geom_smooth(aes( linetype=cut , color=cut))
+```
+b.	Spend time to interpret your chart: What do you notice? Why is it important? How can you improve the above chart? Force yourself to write at least 2 insightful sentences about the above chart.
+
+directly propotional, as the carat incereases price also increases. there are few outliers because of which the curve of smooth chart seems to be deviating by going downwards after the peak. the peaks are mostly where there are alot of data.
+
+7.	Use the diamonds dataset and complete the following:
+a.	Create a scatterplot between the carat (y) and x (x) variables. 
+b.	Assign a blue color to all points.
+c.	Make sure to display only the diamonds with clarity equal to VS1 or VS2.
+d.	Facet the chart using the cut and the color variables.
+
+```{r}
+ggplot(data=diamonds, aes(x=x, y=carat))+
+  geom_point(data=filter(diamonds, clarity=='VS1'| clarity=='VS2'),color='blue')+
+  facet_grid(cut~color)
+```
+
+e.	Spend time to interpret your chart: What do you notice? Why is it important? Force yourself to write at least 2 insightful sentences about the above chart.
+
+carat and X value are directly propotional. with increase in x, there is increase in carat. there are very few diamonds with fair cut. the number incerases for premium and ideal cut. we are comparing only vS1 and VS2 clarity. J is color with highest carat value. proceeding with I, H, G, F, E,D.
+
+## Submitting Your Code
+
+To submit your code, simply copy and paste only the code needed to solve the tasks below each question available at this form (https://forms.office.com/r/289eE1pEsu)

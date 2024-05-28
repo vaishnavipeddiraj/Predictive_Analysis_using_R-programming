@@ -1,0 +1,477 @@
+---
+title: "Activity -5"
+author: "Biagio Palese"
+date: "`r format(Sys.time(), '%d %B, %Y')`" 
+output: 
+  html_document:
+    theme: flatly
+    toc: TRUE
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    code_download: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, cache = F}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  error = TRUE,
+  warning= FALSE,
+  message= FALSE)
+library(tidymodels)
+library(tidyverse)
+set.seed(0101)
+diamonds <- sample_n(diamonds, 3000, weight= cut)
+```
+
+# A Semester Project made by Custom Made Activities
+
+
+Welcome to week 13 of the Dr. B & Class RStudio project. In this second part of the semester, you will apply what we learned in class in a set of tasks and scenarios. Please remember that it is important that the code that you submit is your own code and not somebody else work. It is fine to make mistakes but only by practicing in RStudio you can get a better grasp of the software. I also want you to try building your document as an official report for a potential company (Dreaming Diamonds LLC) for which you are getting to know and explore the diamonds dataset (e.g., spend time on storytelling, commenting results and providing insights and conclusions when possible). 
+Complete all the activities starting at the bottom of this document (write the code inside the chunk and the answers just below the questions or directly in the MS Form at the bottom).
+ 
+
+
+**Summary of this week tasks:**
+
+
+This week we will work on completing a data modeling using tidymodels. We will go over checking correlations, data splitting, model evaluation (both using metrics and visualizations), model interpretation and finally forecasting. So, let’s practice what we covered this week:
+•	Checking correlations
+•	Data Splitting
+•	Model evaluation using RMSE, MAE and RSquared
+•	Model evaluation using visualizations
+•	Model interpretation
+•	Making price forecasts
+
+
+
+### Week Minimum Requirements
+
+1.	Load the tidymodels, corrplot package.
+```{r}
+install.packages("tidymodels")
+library(tidymodels)
+install.packages("corrplot")
+library(corrplot)
+```
+2. Checking correlations: 
+a. Add a price_log (use base 10) variable to the diamonds dataset. Assign the manipulated dataset to an object called diamond. Then compute the correlation matrix for all the interval variables in the new diamonds dataset. Make sure to name the matrix as diamonds_corr_matrix and to use only complete.obs. 
+```{r}
+diamonds# execute this to check rows number
+set.seed(0101)# run this if diamonds is not 3000 rows
+diamonds <- sample_n(na.omit(diamonds), 3000, weight= cut)
+# run this if diamonds is not 3000 rows. Make sure in your environment diamonds is just 3000 rows
+diamond <- diamonds|> 
+  mutate(price_log= log(price, base=10) ) 
+  
+
+diamonds_corr_matrix <- diamond |> 
+  select_if(is.numeric) |> 
+  cor(use = "complete.obs") |> 
+  view()
+
+```
+
+
+b) Visualize the correlation matrix with a correlation chart.
+```{r}
+
+diamonds_corr_matrix <- diamond |> 
+  select_if(is.numeric) |> 
+  cor(use = "complete.obs") |> 
+  corrplot()
+
+```
+What did you learn from the correlation analysis? Provide some interpretation of the correlation matrix or chart.
+
+3. Data splitting: Set a seed for the data splitting task. Then create an initial split that allocate 80% of the data to the training set and 20% to the test set. Make sure to name the training and test set as diamonds_train and diamonds_test.
+```{r}
+set.seed(123)
+diamond_split <- initial_split(diamond, prop = 0.8)
+diamonds_train <-  training(diamond_split)
+diamonds_test <-  testing(diamond_split)
+
+```
+
+How many observations do you have in your train and test sets?
+
+
+4. Recipes:	Use the diamonds dataset and complete the following (make sure that you create 2 different recipes):
+a.	Write the code necessary to apply the following preprocessing steps:
+  - Define a recipe with name diamonds_recipe1.
+  - Make sure that price_log is your dependent variable and that you use all the other variables a predictors.
+  - Apply a log transformation to carat (use base 10). 
+  - Create dummy variables for cut, color and clarity (all nominal columns).   
+```{r}
+diamonds_recipe1 <- recipe(price_log~., data = diamonds_train) |> 
+  step_log(carat, base = 10) |> 
+  step_dummy(all_nominal_predictors()) 
+
+```
+
+
+b. Write the code necessary to apply the following preprocessing steps:
+  - Define a recipe with name diamonds_recipe2.
+  - Make sure that price_log is your dependent variable and that you use all the other variables a predictors.
+  - Log transform carat (use base 10).
+  - Create an interaction term between x*y*z.
+```{r}
+diamonds_recipe2 <- recipe(price_log~., data=diamonds_train)|>
+  step_log(carat,base=10)|>
+  step_dummy(all_nominal_predictors())|>
+  step_interact(~x*y*z)
+```
+
+5.	Complete the following:
+a.	Specify a linear regression model named "linear_reg" with "lm" engine and with "regression" as mode.
+```{r}
+library(parsnip)
+
+linear_reg <- linear_reg() |> 
+  set_engine("lm") |> 
+  set_mode("regression")
+```
+
+b.	Specify a ridge regression model named "linear_ridge" with "glmnet" as engine and with "regression" as mode.
+```{r}
+linear_ridge <- linear_reg(penalty = 0.1, mixture = 0) |> 
+  set_engine("glmnet") |> 
+  set_mode("regression")
+```
+
+c.	Specify a lasso regression model named "linear_lasso" with "glmnet" as engine and with "regression" as mode.
+
+```{r}
+linear_lasso<- linear_reg(penalty = 0.1, mixture = 1) |>
+  set_engine("glmnet") |>
+  set_mode("regression")
+  
+```
+
+6.	Complete the following:
+a. Define	"reg_workflow_recipe1", make sure this workflow uses diamonds_recipe1 and linear_reg model. Write the code to fit reg_workflow_recipe and access its results.
+```{r}
+reg_workflow_recipe1 <- workflow() |> 
+  add_recipe(diamonds_recipe1) |> 
+  add_model(linear_reg) |> 
+  fit(data= diamonds_train)
+
+reg_workflow_recipe1 |> print() |> tidy() |>view()
+
+reg_workflow_recipe_fit1 <- fit(reg_workflow_recipe1, data= diamonds_train)
+```
+
+b. Define	"reg_workflow_recipe2", make sure this workflow uses diamonds_recipe2 and linear_reg model.
+Write the code to fit reg_workflow_recipe2 and access its results.
+```{r}
+reg_workflow_recipe2 <-  workflow() |> 
+  add_recipe(diamonds_recipe2) |> 
+  add_model(linear_reg) |> 
+  fit(data= diamonds_train)
+
+reg_workflow_recipe2 |> print() |> tidy() |>view()
+
+
+reg_workflow_recipe_fit2 <- fit(reg_workflow_recipe2, data= diamonds_train)
+
+```
+
+
+c. Define	"ridge_workflow_recipe1", make sure this workflow uses diamonds_recipe1 and linear_ridge model. Write the code to fit ridge_workflow_recipe and access its results.
+```{r}
+ridge_workflow_recipe1 <- workflow() |> 
+  add_recipe(diamonds_recipe1) |> 
+  add_model(linear_ridge) |> 
+  fit(data= diamonds_train)
+
+ridge_workflow_recipe1 |> print() |> tidy() |>view()
+
+ridge_workflow_recipe_fit1 <- fit(ridge_workflow_recipe1, data= diamond_train)
+
+```
+
+d. Define	"ridge_workflow_recipe2", make sure this workflow uses diamonds_recipe2 and linear_ridge model.
+Write the code to fit ridge_workflow_recipe2 and access its results.
+```{r}
+ridge_workflow_recipe2 <- workflow() |> 
+  add_recipe(diamonds_recipe2) |> 
+  add_model(linear_ridge) |> 
+  fit(data= diamonds_train)
+
+ridge_workflow_recipe2 |> print() |> tidy() |>view()
+
+ridge_workflow_recipe_fit2 <- fit(ridge_workflow_recipe2, data= diamonds_train)
+```
+
+
+e. Define	"lasso_workflow_recipe1", make sure this workflow uses diamonds_recipe1 and linear_lasso model. Write the code to fit lasso_workflow_recipe and access its results.
+```{r}
+lasso_workflow_recipe1 <- workflow() |> 
+  add_recipe(diamonds_recipe1) |> 
+  add_model(linear_lasso) |> 
+  fit(data= diamonds_train)
+
+lasso_workflow_recipe1 |> print() |> tidy() |>view()
+
+lasso_workflow_recipe_fit1 <- fit(lasso_workflow_recipe1, data= diamonds_train)
+```
+
+f. Define	"lasso_workflow_recipe2", make sure this workflow uses diamonds_recipe2 and linear_lasso model.
+Write the code to fit lasso_workflow_recipe2 and access its results.
+```{r}
+lasso_workflow_recipe2 <- workflow() |> 
+  add_recipe(diamonds_recipe2) |> 
+  add_model(linear_lasso) |> 
+  fit(data= diamonds_train)
+
+lasso_workflow_recipe2 |> print() |> tidy() |>view()
+
+lasso_workflow_recipe_fit2 <- fit(lasso_workflow_recipe2, data= diamonds_train)
+```
+
+
+Now that we have train and fitted 6 models we are ready to make predictions and evaluate them.
+
+
+7. Making predictions and computing evaluation metrics (RMSE, MAE, RSquared): Now that we have fitted the 6 models on our training data it is time to use them to make predictions on our test data. 
+
+a) Make sure to make predictions using all 6 models. Assign the predictions to an object that reminds you what model you used to make the predictions. Finally make sure that the price prediction is added to the original diamonds dataset.
+
+```{r}
+###1
+predictions_reg_recipe1 <- predict(reg_workflow_recipe1, new_data = diamonds_test) |> 
+  bind_cols(diamonds_test)|>
+  mutate(pred = 10^.pred)
+
+predictions_reg_recipe1 |> 
+  select(price, pred) |> view()
+
+####2
+predictions_reg_recipe2 <- predict(reg_workflow_recipe2, new_data = diamonds_test) |> 
+  bind_cols(diamonds_test)|>
+  mutate(pred = 10^.pred)
+
+predictions_reg_recipe2 |> 
+  select(price, pred) |> view()
+
+####3
+predictions_ridge_recipe1 <- predict(ridge_workflow_recipe1, new_data = diamonds_test) |> 
+  bind_cols(diamonds_test)|>
+  mutate(pred = 10^.pred)
+
+predictions_ridge_recipe1 |> 
+  select(price, pred) |> view()
+
+####4
+predictions_ridge_recipe2 <- predict(ridge_workflow_recipe2, new_data = diamonds_test) |> 
+  bind_cols(diamonds_test)|>
+  mutate(pred = 10^.pred)
+
+predictions_ridge_recipe2 |> 
+  select(price, pred) |> view()
+
+###5
+predictions_lasso_recipe1 <- predict(lasso_workflow_recipe1, new_data = diamonds_test) |> 
+  bind_cols(diamonds_test)|>
+  mutate(pred = 10^.pred)
+
+predictions_lasso_recipe1 |> 
+  select(price, pred) |> view()
+
+###6
+predictions_lasso_recipe2 <- predict(lasso_workflow_recipe2, new_data = diamonds_test) |> 
+  bind_cols(diamonds_test)|>
+  mutate(pred = 10^.pred)
+
+predictions_lasso_recipe2 |> 
+  select(price, pred) |> view()
+
+```
+
+b) Once you have the predictions make sure to compute and extract the three metrics that will enable to evaluate the model. Create an object called "all_models_metrics" that contains RMSE, MAE and R-Squared for all 6 models. Make sure you can identify which object each metrics belong to.
+
+```{r}
+###1
+rmse_reg1 <- predictions_reg_recipe1 |> 
+  metrics(truth = price, estimate = pred) |> 
+  filter(.metric == "rmse")
+
+mae_reg1 <- predictions_reg_recipe1 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "mae")
+
+rsq_reg1 <- predictions_reg_recipe1 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "rsq")
+
+model_reg1 <- bind_rows(rmse_reg1,mae_reg1, rsq_reg1) |> 
+  mutate(model= "model1_reg")
+model_reg1
+
+###2
+rmse_reg2 <- predictions_reg_recipe2 |> 
+  metrics(truth = price, estimate = pred) |> 
+  filter(.metric == "rmse")
+
+mae_reg2 <- predictions_reg_recipe2 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "mae")
+
+rsq_reg2 <- predictions_reg_recipe2 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "rsq")
+
+model_reg2 <- bind_rows(rmse_reg2,mae_reg2, rsq_reg2) |> 
+  mutate(model= "model2_reg")
+model_reg2
+
+###3
+rmse_ridge1 <- predictions_ridge_recipe1  |> 
+  metrics(truth = price, estimate = pred) |> 
+  filter(.metric == "rmse")
+
+mae_ridge1 <- predictions_ridge_recipe1 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "mae")
+
+rsq_ridge1 <- predictions_ridge_recipe1 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "rsq")
+model_ridge1 <- bind_rows(rmse_ridge1,mae_ridge1, rsq_ridge1) |> 
+  mutate(model= "model1_ridge")
+model_ridge1 
+
+###4
+rmse_ridge2 <- predictions_ridge_recipe2 |> 
+  metrics(truth = price, estimate = pred) |> 
+  filter(.metric == "rmse")
+
+mae_ridge2 <- predictions_ridge_recipe2 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "mae")
+
+rsq_ridge2 <- predictions_ridge_recipe2 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "rsq")
+
+model_ridge2 <- bind_rows(rmse_ridge2,mae_ridge2, rsq_ridge2) |> 
+  mutate(model= "model2_ridge")
+model_ridge2
+
+####5
+rmse_lasso1 <- predictions_lasso_recipe1 |> 
+  metrics(truth = price, estimate = pred) |> 
+  filter(.metric == "rmse")
+
+mae_lasso1 <- predictions_lasso_recipe1 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "mae")
+
+rsq_lasso1 <- predictions_lasso_recipe1 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "rsq")
+
+model_lasso1 <- bind_rows(rmse_lasso1,mae_lasso1, rsq_lasso1) |> 
+  mutate(model= "model1_laso")
+model_lasso1
+
+####6
+rmse_lasso2 <- predictions_lasso_recipe2 |> 
+  metrics(truth = price, estimate = pred) |> 
+  filter(.metric == "rmse")
+
+mae_lasso2 <- predictions_lasso_recipe2 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "mae")
+
+rsq_lasso2 <- predictions_lasso_recipe2 |> 
+  metrics(truth = price, estimate = pred) |>
+  filter(.metric == "rsq")
+
+model_lasso2 <- bind_rows(rmse_lasso2,mae_lasso2, rsq_lasso2) |> 
+  mutate(model= "model2_lasso")
+model_lasso2
+
+all_models_metrics <- bind_rows(model_reg1,model_reg2,model_ridge1,model_ridge2,model_lasso1,model_lasso2 )
+all_models_metrics |> arrange(.metric, .estimate)
+```
+
+c. Based on the all_models_metrics answer the following questions: Which is the optimal model in this case? Why did you select this model? Spend time in interpreting the all_models_metrics across the 3 different metrics.
+
+Mean Absolute Error (MAE): Model 2 performs slightly better, with an MAE of 347 compared to 360 for Model 1 (model1_reg).
+Root Mean Squared Error (RMSE): Model 2 (model2_reg) has the lowest RMSE of 732, while Model 1(model1_reg) follows closely with 695.
+R-squared (R²): Model 1 (model1_reg) has the highest R-squared of 0.976, indicating better fit compared to Model 2 (model2_reg) which has an R-squared of 0.971. 
+Considering these metrics, we know that MAE is something we consider majorly so Model 2 (model2_reg) is the optimal choice due to its high R-squared value, indicating good fit, and its competitive performance in MAE and RMSE. Therefore, Model 2 (model2_reg) is selected as the optimal model.
+
+
+8. Visualizing predictions and residuals.
+
+a. Create a Predicted vs. Actual Values chart only for the optimal model you have identified using RMSE, MAE and RSquared. Assign an alpha of 0.3 and a gold color to your geom_point points. Make sure to assign a different color to the diagonal line.
+
+```{r}
+ggplot(predictions_reg_recipe2, aes(x = price, y = pred))+
+  geom_point(alpha = 0.3, color= "gold") +
+  geom_abline(intercept = 0, slope = 1,linetype='dashed', color = "black") +
+  labs(x = "Actual Values", y = "Predicted Values", title = "Optimal Model Predicted vs. Actual Values")+
+  scale_x_continuous(labels = label_comma()) + 
+  scale_y_continuous(labels = label_comma())
+```
+
+b. Try to interpret the above chart by answering the following questions: Do the points closely align to the diagonal line? Do you see any issues (e.g., noticeable pattern of points that systematically overestimate or underestimate the target variable) with the chart? After looking at the chart do you think you have a good model? Why yes and/or why no? 
+
+The scatterplot shows the relationship between predicted and actual prices of diamonds. Ideally, points should align closely with the diagonal line, indicating accurate predictions. However, there's a noticeable deviation for higher-priced diamonds, suggesting overestimation. Overall, the model performs well for lower-priced diamonds but struggles with higher-priced ones. It's a decent model for predicting prices up to 10,000 but less reliable beyond that range.
+
+
+c. Create an Overlaid Residuals Plot only for the optimal model you have identified using RMSE, MAE and RSquared. Assign an alpha of 0.3 and a gold color to your geom_point points. Make sure to assign a different color to the Zero line.
+
+
+```{r}
+ggplot() +
+    geom_point(data = predictions_reg_recipe2, aes(x = pred, y = price - pred)) +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    labs(x = "Predicted", y = "Residuals", title = "Overlayed Residuals Plot") +
+    theme_minimal() +
+    guides(color = guide_legend(title = "Model"))+
+  scale_x_continuous(labels = label_comma()) +  
+  scale_y_continuous(labels = label_comma())
+
+```
+
+
+d. Try to interpret the above chart by answering the following questions: Do the points closely align to the Zero line? Do you see any issues (e.g., noticeable pattern of points that systematically overestimate or underestimate the target variable) with the chart? After looking at the chart do you think you have a good model? Why yes and/or why no? 
+
+No, Points are not closely align to the zero line, we can say that the predictions of the model after a point were underestimated and overestimated but the diamonds with the highest rates were overestimated. This is a good model for predicting the prices of the diamonds
+
+9. Now, that we have identified the optimal model and determined that it is good enough, let's proceed to interpret the optimal model. 
+a. Write the code to show the results of the optimal fitted model in a tidy format.
+
+```{r}
+reg_workflow_recipe2 |> print() |> tidy()
+```
+
+Provide an interpretation of the carat variable (hint: remember that we log transformed both price and carat on base 10). Make sure to focus on coefficient (estimate) interpretation. I want you guys to comment not only on the magnitude and direction of coefficient but also on how much change to expect in the dependent variable for a one-unit change in the carat variable (given all the other variable staying constant). Make also sure to take into account the p-value, is the variable significant?
+
+Carat variable is significant as the p-value is less than 0.05. from the estimates we can say that for a unit in carat value increases the gold price by 1.09 ^10 dollars.
+
+11. Apply the optimal model to predict the price of the new_diamonds_data. 
+
+a. Import the new_diamonds_data.csv data in R. Assign it to an object named new_diamonds_data.
+
+```{r}
+library(readr)
+
+new_diamonds_data <- read_csv("new_diamonds_data.csv")   
+new_diamonds_data
+```
+
+b. Predict the price of the diamonds available in the new_diamonds_data dataset using your optimal model workflow.
+```{r}
+
+```
+
+## Submitting Your Code
+
+To submit your code, simply copy and paste only the code needed to solve the tasks below each question available at this form (https://forms.office.com/r/peUQvdkV14). If you want answer the open ended questions (if any) directly in the form but make sure to don't leave them empty. 
+

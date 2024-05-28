@@ -1,0 +1,177 @@
+---
+title: "RStudio Data Modeling Review"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    theme: flatly
+    toc: TRUE
+    toc_float: TRUE
+    code_download: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, cache = F}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  error = TRUE,
+  warning= FALSE,
+  message= FALSE)
+```
+
+# Getting started
+```{r}
+library(tidyverse) # just run this code (no points)
+library(tidymodels) # just run this code (no points)
+library(corrplot)# just run this code (no points)
+?nycflights13::flights# run this code to learn more about the dataset we will use in this review (no points)
+flights_mod <- read_csv("flights_mod_review.csv") |> 
+  mutate(year= as_factor(year), month=as_factor(month), day=as_factor(day))# just run this code (no points). You must run this code after running library(tidymodels and tidyverse) in order to replicate the results.
+glimpse(flights_mod)# just run this code to explore the data more(no points).
+```
+
+1. Using the flights_mod dataset, write the code to create a correlation matrix using `arr_delay`, `dep_delay`, `distance`, `air_time`, `gain`  and `speed`. Make sure to name the matrix as flights_corr_matrix and to use only "complete.obs".
+```{r}
+
+flights_corr_matrix <- flights_mod |> 
+  select(arr_delay, dep_delay, distance, air_time, gain  , speed) |> 
+  cor(use ="complete.obs" )
+```
+
+
+2. Visualize the correlation matrix with a correlation chart.
+```{r}
+corrplot(flights_corr_matrix)
+```
+
+
+3. Write the code to set a seed for the data splitting task. Then create an initial split that allocate 80% of the data to the training set and 20% to the test set. Finally, using that split create a `flights_train` and a `flights_test` dataset.
+```{r}
+set.seed(123) 
+flights_split <- initial_split(flights_mod, prop=0.8)
+flights_train <- training(flights_split)
+flights_test <- testing(flights_split)
+```
+
+
+4. Use the flights_train dataset to complete the following:
+
+a. Create a new recipe and name the recipe as flights_recipe1.
+  - Make sure that arr_delay is your dependent variable and that you use the `dep_delay`, `distance`, `air_time`, `origin`, `carrier`, `year`, `month`, `day` variables a predictors.
+  - Impute missing values for the `dep_delay` using the average.
+  - Log transform (base 10) all the numeric independent variables 
+  - Create dummy variables for all the nominal predictors in the model. 
+```{r}
+flights_recipe1 <- recipe(arr_delay~dep_delay+distance+air_time+origin+ carrier+year+month+day, data = flights_mod) |> 
+  step_impute_mean(dep_delay) |> 
+  step_log(all_numeric_predictors(), base=10) |> 
+  step_dummy(all_nominal_predictors())
+```
+
+b. Create a new recipe and name the recipe as flights_recipe2.
+  - Make sure that arr_delay is your dependent variable and that you use the `dep_delay`, `distance`, `air_time`, `gain`, `speed` variables as predictors.
+  - Standardize all the numeric independent variables.
+  - Create an interaction term between  `distance` and `air_time`. 
+```{r}
+
+flights_recipe2 <- recipe(arr_delay~dep_delay+distance+air_time+gain+speed, data = flights_mod) |> 
+  step_normalize(all_numeric_predictors()) |> 
+  step_interact( ~ distance:air_time)
+```
+
+
+5.	Complete the following:
+a.	Specify a linear regression model named "mod_linear_reg" with "lm" engine and with "regression" as mode.
+```{r}
+mod_linear_reg <- linear_reg() |> 
+  set_engine("lm") |> 
+  set_mode("regression")
+```
+
+b.	Specify a ridge regression model named "mod_linear_ridge" with "glmnet" as engine and with "regression" as mode.
+```{r}
+mod_linear_ridge <- linear_reg(penalty = 0.1, mixture=0) |> 
+  set_engine("glmnet") |> 
+  set_mode("regression")
+```
+
+6.	Complete the following:
+a. Define	"reg_workflow_recipe1", make sure this workflow uses flights_recipe1 and mod_linear_reg model. Make sure to also fit the workflow without creating additional objects.
+```{r}
+reg_workflow_recipe1 <- workflow() |> 
+  add_recipe(flights_recipe1) |> 
+  add_model(mod_linear_reg)
+
+fit( reg_workflow_recipe1, data = flights_train)
+```
+
+
+b. Define	"ridge_workflow_recipe1", make sure this workflow uses flights_recipe1 and mod_linear_ridge model. Make sure to also fit the workflow without creating additional objects.
+```{r}
+ridge_workflow_recipe1 <- workflow() |> 
+  add_recipe(flights_recipe1) |> 
+  add_model(mod_linear_ridge)
+
+fit( ridge_workflow_recipe1, data = flights_train)
+
+```
+
+
+7. Complete the following:
+
+a) Make sure to make predictions using reg_workflow_recipe1. Assign the predictions to an object named recipe1_reg_predictions. Finally make sure that the arrival delay predictions are added to the original flights_test dataset.
+
+```{r}
+recipe1_reg_predictions <- predict(reg_workflow_recipe1, new_data = flights_test) |> 
+  bind_cols(flights_test)
+
+```
+
+b) Make sure to make predictions using ridge_workflow_recipe1 Assign the predictions to an object named recipe1_ridge_predictions. Finally make sure that the arrival delay predictions are added to the original flights_test dataset.
+
+```{r}
+
+```
+
+8. Complete the following:
+
+a. Compute and extract RMSE, MAE and RSquared associated with recipe1_reg_predictions. Make sure you can identify that the metrics belong to your `recipe1_reg_model`.
+
+```{r}
+
+```
+
+b. Compute and extract RMSE, MAE and RSquared associated with recipe1_ridge_predictions. Make sure you can identify that the metrics belong to your `recipe1_ridge_model`.
+
+```{r}
+
+```
+
+c. Which one is the best model? Please justify your choice.
+
+
+9. Complete the following:
+
+a. Write the code to show all the results of the reg_workflow_recipe1 model in a tidy format.
+
+```{r}
+
+```
+
+b. Write the code to show all the results of the ridge_workflow_recipe1 model in a tidy format.
+
+```{r}
+
+```
+
+
+10 [Bonus]. Provide a complete interpretation of the results of the reg_workflow_recipe1 model. Complete interpretation includes interpretation of coefficients, standard error, statistic and p-value. You should just focus on the `month` of July and `origin` variables.
+
+
+
+## Submitting Your Code
+
+To submit your code and your answers, simply copy and paste only the code needed to solve the tasks below each question available at this form (https://forms.office.com/r/1Er4iUPmgt). If you want answer the open ended questions (if any) directly in the form but make sure to don't leave them empty. 
+
+
+

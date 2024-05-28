@@ -1,0 +1,173 @@
+---
+title: "Skill Test: Data Modeling"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    theme: flatly
+    toc: TRUE
+    toc_float: TRUE
+    code_download: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, cache = F}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  error = TRUE,
+  warning= FALSE,
+  message= FALSE)
+```
+
+# Getting started
+```{r}
+library(tidyverse) # just run this code (no points)
+library(tidymodels) # just run this code (no points)
+library(corrplot)# just run this code (no points)
+
+# click on the "data_dictionary_skills_test3" file. Then chose `View in Web Browser` to access the data dictionaty of the dataset (no points).
+
+mall <- read_csv("dataset_skills_test3.csv") |> 
+  mutate(year= as_factor(year), month=as_factor(month), day=as_factor(day))# just run this code (no points). You must run this code after running library(tidymodels and tidyverse) in order to replicate the results.
+glimpse(mall)# just run this code to explore the data more(no points).
+```
+
+1. Using the mall dataset, write the code to create a correlation matrix using `unit_cost`, `social_media_ads`, `average_daily_traffic`, `discount`, `sale_price`,  and `margin`. Make sure to name the matrix as mall_corr_matrix and to use only "complete.obs". [1.5 points]
+```{r}
+
+```
+
+
+2. Visualize the correlation matrix with a correlation chart. [1 point]
+```{r}
+
+```
+
+
+3. Write the code to do the following:
+
+3a. Set a seed for the data splitting task. Use 681 as your seed number. [0.5 point]
+```{r}
+
+```
+
+3b. Then create an initial split that allocate 70% of the data to the training set and 30% to the test set. Name the split as mall_split. [1 point]
+
+```{r}
+```
+
+3c. Create a training set. Name the dataset as  `mall_train`. [1 point]
+```{r}
+
+```
+
+3d. Create a test set. Name the dataset as `mall_test`. [1 point]
+```{r}
+
+```
+
+4. Use the mall_train dataset to complete the following:
+
+4a. Create a new recipe and name the recipe as recipe1_mall.
+  - Make sure that `sale_price` is your dependent variable and that you use all the other variables as your predictors.
+  - Scale all the numeric independent variables.
+  - Create dummy variables for all the nominal predictors in the model.
+  - Create an interaction term between  `newspapers_ads` and `tv_ads`.
+  - Create a new column named "total_ads" which is equal to the sum of `social_media_ads`, `tv_ads`, and `newspapers_ads`. [3 points]
+```{r}
+
+```
+
+4b. Create a new recipe and name the recipe as recipe2_mall.
+  - Make sure that `sale_price` is your dependent variable and that you use the `unit_cost`, `units_sold`, `discount`, `margin`, `season`, `location`, `month`  variables a predictors.
+  - Impute missing values for the `discount` using the median.
+  - Standardize all the numeric independent variables. 
+  - Create dummy variables for all the nominal predictors in the model. [3 points]
+ 
+```{r}
+
+```
+
+
+5.	Complete the following:
+
+5a. Specify a lasso regression model named "lasso_model" with "glmnet" as engine and with "regression" as mode.	[2 points]
+```{r}
+
+```
+
+5b. Specify a linear regression model named "lm_model" with "lm" engine and with "regression" as mode. [2 points]
+```{r}
+
+```
+
+6.	Complete the following:
+
+6a. Define "recipe1_lasso_workflow", make sure this workflow uses the recipe1_mall as recipe and the lasso_model as model. Make sure to also fit the workflow without creating additional objects. [3 points]
+```{r}
+
+```
+
+6b. Define	"recipe2_lm_workflow", make sure this workflow uses the recipe2_mall as recipe and the lm_model as model. Make sure to also fit the workflow without creating additional objects. [3 points]
+```{r}
+
+```
+
+
+7. Complete the following:
+
+7a) Make sure to make predictions using recipe1_lasso_workflow. Assign the predictions to an object named recipe1_lasso_predictions. Finally make sure that the sale_price predictions are added to the original mall_test dataset. [2 points]
+
+```{r}
+
+```
+
+7b) Make sure to make predictions using recipe2_lm_workflow. Assign the predictions to an object named recipe2_lm_predictions. Finally make sure that the sale_price predictions are added to the original mall_test dataset.  [2 points]
+
+```{r}
+
+```
+
+8. Complete the following:
+
+8a. Compute and extract RMSE, MAE and RSquared associated with recipe1_lasso_predictions. Make sure you can identify that the metrics belong to your `recipe1_lasso_model`. Assign the metrics to an object named `lasso_metrics`.  [2 points]
+
+```{r}
+
+```
+
+8b. Compute and extract RMSE, MAE and RSquared associated with recipe1_lm_predictions Make sure you can identify that the metrics belong to your `recipe2_lm_model`. Assign the metrics to an object named `lm_metrics`.  [2 points]
+
+```{r}
+
+```
+
+8c. Which one is the best model? Please justify your choice.  [1 point]
+
+
+9. Complete the following:
+
+9a. Write the code to show all the results of the recipe1_lasso_workflow model in a tidy format.  [1.5 points]
+
+```{r}
+
+```
+
+9b. Write the code to show all the results of the recipe2_lm_workflow model in a tidy format. [1.5 points]
+
+```{r}
+
+```
+
+
+10 [Bonus]. Provide a complete interpretation of the results of the recipe2_lm_workflow model. Your interpretation should discuss pvalue and the estimate value. You should just focus on  `units_sold` and `month_X8` variables. You can ignore the transformations applied to the independent variables in the recipe and you should keep in mind that the sale_price is measured in US dollars. [3 points]
+
+
+
+## Submitting Your Code
+
+To submit your code and your answers, simply copy and paste only the code needed to solve the tasks below each question available at this form (https://forms.office.com/r/2i638nmUBM). Feel free to answer the open ended questions directly in the form and make sure that you are not leaving any answer empty in the form. 
+It is your responsibility to make sure that your are copying and pasting the right code and response per each question. We will penalize submission that contain unnecessary code or text in the open ended questions.
+
+
+

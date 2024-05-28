@@ -1,0 +1,172 @@
+---
+title: "RStudio Vizualization Review"
+date: "`r format(Sys.time(), '%d %B, %Y')`" 
+output: 
+  html_document:
+    
+    theme: flatly
+    toc: TRUE
+    toc_float: TRUE
+    code_download: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, cache = F}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  error = TRUE,
+  warning= FALSE,
+  message= FALSE)
+```
+
+# Getting started
+```{r}
+install.packages("tidyverse")
+library(tidyverse) # just run this code (no points)
+?diamonds# run this code to learn more about the dataset we will use in this review (no points)
+diamonds <- read_csv("diamonds_viz_review.csv")# just run this code (no points). You must run this code after running library(tidyverse) in order to replicate the results.
+```
+
+1. Write the code to produce a bar chart showing the number of diamonds by their `cut`. Show every diamonds `clarity` with a different color. Make sure the bars are colored.
+```{r}
+ggplot(data = diamonds)+
+  geom_bar(mapping = aes(x= cut, fill = clarity))
+```
+
+![Chart 2 ](chart_2.png)
+2. First, reproduce the chart above. Then change the dots color to red, the size to 4 and the shape to 5. Please only include the code after the above changes are made. 
+
+```{r}
+ggplot(data = diamonds)+
+  geom_point(mapping = aes(x=depth, y= table), color = "red", size = 4 , shape = 5  )+
+  facet_wrap(~cut, nrow=3)
+
+```
+
+
+
+
+3. Create a smoothing line plot that shows the relationship between the `price` and `carat` variables of the diamonds dataset. Then create separate subplots for each value inside the `clarity` variable.
+
+```{r}
+ggplot(data = diamonds)+
+  geom_smooth(mapping = aes(y=price, x=carat))+
+  facet_wrap(~clarity, nrow=2)
+
+```
+
+![Chart 4 ](chart_4.png)
+
+
+4. Write the code to reproduce the Chart 4 above.
+
+```{r}
+
+ggplot(data = diamonds)+
+  geom_boxplot(mapping = aes(y=price, x=carat, color =cut) )
+  
+```
+
+
+
+5. Write the code to create a bar chart that shows the number of diamonds by their `clarity` and their `price` (hint: it is a bar chart with two axis, so you can’t use geom_bar). Then make sure that the bars are filled with a different color based on diamonds `cut`. 
+
+```{r}
+
+ggplot(data = diamonds)+
+  geom_col(mapping = aes(x=clarity, y = price, fill =cut)) 
+
+```
+
+![Chart 6](chart_6.png)
+
+6. Write the code to reproduce the Chart 6 above.
+
+```{r}
+ggplot(data = diamonds)+
+  geom_point(mapping = aes(x=carat, y= depth, color = cut, shape = cut, alpha= cut))
+```
+
+
+7. Create a smoothing line plot to show the relationship between the `carat` and `table` variables of the diamonds dataset. Change the line shape based on the `cut` variable values. Make sure you can distinguish the lines of each cut using also a different color for them. 
+
+Make sure to hide the confidence interval.
+
+```{r}
+
+ggplot(data = diamonds)+
+  geom_smooth(mapping = aes(x=table, y= carat, color = cut, linetype = cut, alpha= cut), se=F)
+
+```
+
+![Chart 8](chart_8.png)
+8. Write the code to reproduce the Chart 8 above.
+
+```{r}
+ggplot(data = diamonds)+
+  geom_point(mapping = aes(y=carat, x=table, color =clarity))+
+  geom_smooth(mapping = aes(x=table, y= carat))+
+  facet_wrap(~cut)
+
+```
+
+
+9. Show the relationship between `price` (y axis) and `carat` (x axis) with both a scatterplot and smoothing line plot.  Make sure that the dots of the scatterplot have a different color based on the `clarity` variable. Make also sure that one of the smoothing line only uses the observations with “Premium” cut. Add also another smoothing line showing all the other diamonds cuts excluding the "Premium" cut. Make sure this smoothing line is pink.
+
+```{r}
+
+ggplot(data =mpg, mapping=aes(y=price, x=carat))+
+  geom_point(mapping=aes(color = clarity))+
+  geom_smooth(data = filter(diamonds, cut =="premium") )+
+  geom_smooth(data = filter(diamonds, cut !="premium") , color = "pink")
+
+```
+
+![Chart 10](chart_10.png)
+
+10. Write the code to reproduce the Chart 10 above.
+
+```{r}
+
+ggplot(data = diamonds)+
+  geom_density(mapping = aes(x=color, fill =color))+
+  facet_wrap(~cut, nrow = 1)
+
+```
+
+![Bonus: Chart 11](chart_bonus_11.png)
+
+11. Write the code to reproduce the Chart 11 above.
+
+```{r}
+
+
+ggplot(data = diamonds)+
+  geom_point(mapping = aes(y= price, x= carat), color = "purple")+
+  geom_boxplot(mapping = aes(y= price, x= carat, fill =clarity))+
+  facet_wrap(~cut,nrow = 2)
+
+ggplot(data = mpg)+
+  geom_boxplot(mapping = aes(x= displ,y=hwy,fill = as_factor(cyl)))
+
+ggplot(data = na.omit(penguins), mapping = aes(x=flipper_length_mm,y=body_mass_g))+
+  geom_point(mapping = aes(color = sex))+
+  geom_smooth()+
+  facet_wrap(~species, nrow = 1)
+  
+
+ggplot(data = na.omit(penguins), mapping=aes(y=flipper_length_mm,x=species))+
+  geom_boxplot(mapping = aes(color = species))+
+   geom_jitter(mapping = aes( color=species, alpha=species))
+  
+ggplot(data = na.omit(penguins), mapping=aes(x=bill_length_mm, y= bill_depth_mm))+
+  geom_point(mapping = aes(color = sex))+
+  geom_smooth(method=lm, color="grey",nrow=2,se=F)+
+   facet_grid(sex~species)
+  
+
+```
+
+## Submitting Your Code 
+Once you are done with your Skill Test, submit your code by *carefully copy and pasting only the code necessary to solve each of the question* at the following link: https://forms.office.com/r/bS6AGimSLt. Make sure to copy just the code required to create each chart (please do not copy unnecessary code or you will be penalized for it).
